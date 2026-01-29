@@ -43,3 +43,12 @@ resource "google_artifact_registry_repository" "inference_repo" {
   repository_id = "celestial-inference" # ここを Actions の IMAGE_NAME と合わせる
   format        = "DOCKER"
 }
+
+# Vertex AI API の有効化
+resource "google_project_service" "aiplatform" {
+  project = var.project_id
+  service = "aiplatform.googleapis.com"
+
+  # 誤って無効化して他のサービスを止めないための安全策
+  disable_on_destroy = false
+}
