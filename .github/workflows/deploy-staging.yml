@@ -1,0 +1,43 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+env:
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
+  REGION: asia-northeast1
+  IMAGE_NAME: asia-northeast1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/cloudrun-source-deploy/inference
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and Push Container
+        run: |
+          gcloud auth configure-docker asia-northeast1-docker.pkg.dev --quiet
+          docker build -t ${{ env.IMAGE_NAME }}:latest -f src/backend/Dockerfile.dev src/backend
+          docker push ${{ env.IMAGE_NAME }}:latest
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+
+      - name: Terraform Apply
+        working-directory: terraform/environments/staging
+        run: |
+          terraform init
+          terraform apply -auto-approve -var="project_id=${{ env.PROJECT_ID }}"
