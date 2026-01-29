@@ -34,3 +34,9 @@ resource "google_cloud_run_v2_service" "inference" {
     }
   }
 }
+
+resource "google_artifact_registry_repository" "inference_repo" {
+  location      = var.region
+  repository_id = "celestial-inference" # ここを Actions の IMAGE_NAME と合わせる
+  format        = "DOCKER"
+}
