@@ -10,7 +10,7 @@ services:
       - ~/.config/gcloud/application_default_credentials.json:/tmp/keys/gcp-creds.json:ro
     ports:
       # 既存の Django (8000) と衝突しないよう 8001 を使用
-      - "8001:8080"
+      - "8001:8000"
     environment:
       - PYTHONDONTWRITEBYTECODE=1
       # Python ライブラリが認証ファイルを見つけるための変数

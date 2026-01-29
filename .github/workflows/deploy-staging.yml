@@ -28,7 +28,7 @@ jobs:
       - name: Build and Push Container
         run: |
           gcloud auth configure-docker asia-northeast1-docker.pkg.dev --quiet
-          docker build -t ${{ env.IMAGE_NAME }}:latest -f src/backend/Dockerfile.dev src/backend
+          docker build -t ${{ env.IMAGE_NAME }}:latest -f src/backend/Dockerfile src/backend
           docker push ${{ env.IMAGE_NAME }}:latest
 
       - name: Setup Terraform
