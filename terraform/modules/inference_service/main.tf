@@ -18,7 +18,7 @@ resource "google_cloud_run_v2_service" "inference" {
 
   template {
     containers {
-      image = "asia-northeast1-docker.pkg.dev/${var.project_id}/cloudrun-source-deploy/inference:latest"
+      image = "asia-northeast1-docker.pkg.dev/${var.project_id}/celestial-inference/inference:latest"
       
       resources {
         limits = {
