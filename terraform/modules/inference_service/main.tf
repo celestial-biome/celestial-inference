@@ -16,8 +16,6 @@ resource "google_cloud_run_v2_service" "inference" {
   name     = "inference-service-${var.env}"
   location = var.region
 
-  deletion_protection=false
-
   template {
     containers {
       image = "asia-northeast1-docker.pkg.dev/${var.project_id}/celestial-inference/inference:latest"
