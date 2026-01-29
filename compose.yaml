@@ -1,0 +1,23 @@
+services:
+  inference:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      # コードのホットリロード用マウント
+      - ./src/backend:/app
+      # GCP 認証情報の注入 (ADC)
+      - ~/.config/gcloud/application_default_credentials.json:/tmp/keys/gcp-creds.json:ro
+    ports:
+      # 既存の Django (8000) と衝突しないよう 8001 を使用
+      - "8001:8000"
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      # Python ライブラリが認証ファイルを見つけるための変数
+      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/gcp-creds.json
+      - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
+    # LLM 処理はメモリを消費するため、必要に応じて制限を設ける
+    deploy:
+      resources:
+        limits:
+          memory: 2gb

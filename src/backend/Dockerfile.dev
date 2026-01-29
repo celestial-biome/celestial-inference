@@ -1,0 +1,22 @@
+# uv 公式の Python 3.12 イメージを使用
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+
+# システム依存パッケージのインストール (curlなどはデバッグに便利)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# 依存関係のインストール
+# uv 公式イメージなので、直接 uv コマンドが利用可能
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    uv sync --frozen --no-install-project
+
+# パス設定
+ENV PATH="/app/.venv/bin:$PATH"
+
+# FastAPI 開発モード
+CMD ["uv", "run", "fastapi", "dev", "main.py", "--host", "0.0.0.0", "--port", "8000"]
