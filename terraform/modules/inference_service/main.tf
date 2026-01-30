@@ -35,6 +35,10 @@ resource "google_cloud_run_v2_service" "inference" {
         value = var.project_id
       }
     }
+
+    labels = {
+      "commit-sha" = var.image_tag
+    }
   }
 }
 

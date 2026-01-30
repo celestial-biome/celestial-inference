@@ -40,4 +40,6 @@ jobs:
         working-directory: terraform/environments/staging
         run: |
           terraform init
-          terraform apply -auto-approve -var="project_id=${{ env.PROJECT_ID }}"
+          terraform apply -auto-approve \ 
+            -var="project_id=${{ env.PROJECT_ID }}" \
+            -var="image_tag=${{ github.sha }}"
