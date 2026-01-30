@@ -8,7 +8,7 @@ app = FastAPI(title="Celestial Inference API")
 
 # GCP プロジェクト設定 (Terraform で注入した環境変数を使用)
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT")
-REGION = "asia-northeast1"
+REGION = "us-central1"
 
 # Vertex AI の初期化
 vertexai.init(project=PROJECT_ID, location=REGION)
@@ -24,8 +24,8 @@ class InferenceResponse(BaseModel):
 @app.post("/v1/predict", response_model=InferenceResponse)
 async def predict(request: InferenceRequest):
     try:
-        # モデルの初期化 (Gemini 1.5 Flash を推奨)
-        model = GenerativeModel("gemini-1.5-flash-002")
+        # モデルを 2.0 Flash に変更 (こちらが現在の標準です)
+        model = GenerativeModel("gemini-2.0-flash-001")
         
         # 推論の実行
         response = await model.generate_content_async(
