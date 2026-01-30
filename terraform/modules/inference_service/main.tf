@@ -52,3 +52,11 @@ resource "google_project_service" "aiplatform" {
   # 誤って無効化して他のサービスを止めないための安全策
   disable_on_destroy = false
 }
+
+# 未認証のアクセスを許可する設定（staging の確認に限り）
+resource "google_cloud_run_v2_service_iam_member" "noauth" {
+  location = google_cloud_run_v2_service.inference.location
+  name     = google_cloud_run_v2_service.inference.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
