@@ -27,9 +27,11 @@ jobs:
 
       - name: Build and Push Container
         run: |
+          TAG=${{ github.sha }}
+          FULL_IMAGE="${{ env.IMAGE_NAME }}:$TAG"
           gcloud auth configure-docker asia-northeast1-docker.pkg.dev --quiet
-          docker build -t ${{ env.IMAGE_NAME }}:latest -f src/backend/Dockerfile src/backend
-          docker push ${{ env.IMAGE_NAME }}:latest
+          docker build -t $FULL_IMAGE -f src/backend/Dockerfile src/backend
+          docker push $FULL_IMAGE
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
