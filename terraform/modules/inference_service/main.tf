@@ -64,3 +64,17 @@ resource "google_cloud_run_v2_service_iam_member" "noauth" {
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
+
+# BigQuery のジョブ実行権限
+resource "google_project_iam_member" "bq_job_user" {
+  project = var.project_id
+  role    = "roles/bigquery.jobUser"
+  member  = "serviceAccount:${google_service_account.inference_sa.email}"
+}
+
+# データの閲覧権限
+resource "google_project_iam_member" "bq_data_viewer" {
+  project = var.project_id
+  role    = "roles/bigquery.dataViewer"
+  member  = "serviceAccount:${google_service_account.inference_sa.email}"
+}
