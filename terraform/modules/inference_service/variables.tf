@@ -19,3 +19,10 @@ variable "image_tag" {
   type        = string
   default     = "latest"
 }
+
+variable "bq_dataset" {
+  description = "The BigQuery dataset name"
+  type        = string
+  # デフォルト値を staging にしておく
+  default     = "celestial_biome_data_staging"
+}
