@@ -4,6 +4,7 @@ module "inference_service" {
   project_id = var.project_id
   env        = "staging"
   region     = "asia-northeast1"
+  image_tag  = var.image_tag
 }
 
 terraform {

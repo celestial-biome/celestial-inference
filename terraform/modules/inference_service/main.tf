@@ -18,7 +18,10 @@ resource "google_cloud_run_v2_service" "inference" {
 
   template {
     containers {
-      image = "asia-northeast1-docker.pkg.dev/${var.project_id}/cloudrun-source-deploy/inference:latest"
+      image = "asia-northeast1-docker.pkg.dev/${var.project_id}/celestial-inference/inference:${var.image_tag}"
+      ports {
+        container_port = 8080 # ここをDockerfileの起動ポートと合わせる
+      }
       
       resources {
         limits = {
@@ -32,5 +35,46 @@ resource "google_cloud_run_v2_service" "inference" {
         value = var.project_id
       }
     }
+
+    labels = {
+      "commit-sha" = var.image_tag
+    }
   }
+}
+
+resource "google_artifact_registry_repository" "inference_repo" {
+  location      = var.region
+  repository_id = "celestial-inference" # ここを Actions の IMAGE_NAME と合わせる
+  format        = "DOCKER"
+}
+
+# Vertex AI API の有効化
+resource "google_project_service" "aiplatform" {
+  project = var.project_id
+  service = "aiplatform.googleapis.com"
+
+  # 誤って無効化して他のサービスを止めないための安全策
+  disable_on_destroy = false
+}
+
+# 未認証のアクセスを許可する設定（staging の確認に限り）
+resource "google_cloud_run_v2_service_iam_member" "noauth" {
+  location = google_cloud_run_v2_service.inference.location
+  name     = google_cloud_run_v2_service.inference.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
+# BigQuery のジョブ実行権限
+resource "google_project_iam_member" "bq_job_user" {
+  project = var.project_id
+  role    = "roles/bigquery.jobUser"
+  member  = "serviceAccount:${google_service_account.inference_sa.email}"
+}
+
+# データの閲覧権限
+resource "google_project_iam_member" "bq_data_viewer" {
+  project = var.project_id
+  role    = "roles/bigquery.dataViewer"
+  member  = "serviceAccount:${google_service_account.inference_sa.email}"
 }
