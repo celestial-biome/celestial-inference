@@ -45,3 +45,4 @@ jobs:
           terraform apply -auto-approve \
             -var="project_id=${{ secrets.PROJECT_ID }}" \
             -var="image_tag=${{ github.sha }}"
+            -var="bq_dataset=celestial_biome_data_staging"
