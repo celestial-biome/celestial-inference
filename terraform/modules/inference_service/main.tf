@@ -18,7 +18,7 @@ resource "google_cloud_run_v2_service" "inference" {
 
   template {
     containers {
-      image = "asia-northeast1-docker.pkg.dev/${var.project_id}/celestial-inference/inference:${var.image_tag}"
+      image = "asia-northeast1-docker.pkg.dev/${var.project_id}/celestial-inference-${var.env}/inference:${var.image_tag}"
       ports {
         container_port = 8080 # ここをDockerfileの起動ポートと合わせる
       }
@@ -34,6 +34,11 @@ resource "google_cloud_run_v2_service" "inference" {
         name  = "GOOGLE_CLOUD_PROJECT"
         value = var.project_id
       }
+
+      env {
+        name  = "BQ_DATASET"
+        value = var.bq_dataset
+      }
     }
 
     labels = {
@@ -44,7 +49,7 @@ resource "google_cloud_run_v2_service" "inference" {
 
 resource "google_artifact_registry_repository" "inference_repo" {
   location      = var.region
-  repository_id = "celestial-inference" # ここを Actions の IMAGE_NAME と合わせる
+  repository_id = "celestial-inference-${var.env}" # ここを Actions の IMAGE_NAME と合わせる
   format        = "DOCKER"
 }
 

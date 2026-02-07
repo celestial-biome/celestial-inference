@@ -1,14 +1,14 @@
-name: Deploy Staging
+name: Deploy Production
 
 on:
   push:
     branches:
-      - staging
+      - main
 
 env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
   REGION: asia-northeast1
-  IMAGE_NAME: asia-northeast1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/celestial-inference-staging/inference
+  IMAGE_NAME: asia-northeast1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/celestial-inference-prod/inference
 
 jobs:
   deploy:
@@ -39,10 +39,10 @@ jobs:
           terraform_version: 1.10.5
 
       - name: Terraform Apply
-        working-directory: terraform/environments/staging
+        working-directory: terraform/environments/prod
         run: |
           terraform init
           terraform apply -auto-approve \
             -var="project_id=${{ secrets.PROJECT_ID }}" \
-            -var="image_tag=${{ github.sha }}"\
-            -var="bq_dataset=celestial_biome_data_staging"
+            -var="image_tag=${{ github.sha }}" \
+            -var="bq_dataset=celestial_biome_data"

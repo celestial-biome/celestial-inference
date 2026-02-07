@@ -5,7 +5,7 @@ variable "project_id" {
 
 variable "env" {
   type    = string
-  default = "staging"
+  default = "prod"
 }
 
 variable "image_tag" {
