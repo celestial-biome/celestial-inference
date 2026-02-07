@@ -42,7 +42,7 @@ resource "google_cloud_run_v2_service" "inference" {
     }
 
     labels = {
-      "commit-sha" = var.image_tag
+      "commit-sha" = substr(var.image_tag, 0, 63)
     }
   }
 }
@@ -82,4 +82,21 @@ resource "google_project_iam_member" "bq_data_viewer" {
   project = var.project_id
   role    = "roles/bigquery.dataViewer"
   member  = "serviceAccount:${google_service_account.inference_sa.email}"
+}
+
+# ドメインマッピングの設定
+resource "google_cloud_run_domain_mapping" "domain_map" {
+  # domain_name が空でない場合のみ作成
+  count    = var.domain_name != "" ? 1 : 0
+  location = var.region
+  name     = var.domain_name
+
+  metadata {
+    namespace = var.project_id
+  }
+
+  spec {
+    # マッピング先のサービス名
+    route_name = google_cloud_run_v2_service.inference.name
+  }
 }

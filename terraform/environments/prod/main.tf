@@ -6,6 +6,7 @@ module "inference_service" {
   region     = "asia-northeast1"
   image_tag  = var.image_tag
   bq_dataset = "celestial_biome_data"
+  domain_name = "inference.celestial-biome.com"
 }
 
 terraform {
