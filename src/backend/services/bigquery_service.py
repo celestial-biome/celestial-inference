@@ -4,10 +4,14 @@ from datetime import datetime, timedelta
 
 class BigQueryService:
     def __init__(self):
+        # プロジェクトIDを取得
         self.project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "celestial-biome-480601")
         self.client = bigquery.Client(project=self.project_id)
-        self.dataset = "celestial_biome_data_staging"
-        # 各テーブル名の定義
+        
+        # デフォルト値として staging 用の名称を設定しておくことで、設定漏れ時の安全策とする。
+        self.dataset = os.getenv("BQ_DATASET", "celestial_biome_data_staging")
+        
+        # 各テーブル名の定義（テーブル名は共通）
         self.table_space = "space_weather_metrics"
         self.table_earthquake = "earthquakes_raw"
         self.table_economy = "economy_raw"
@@ -40,6 +44,7 @@ class BigQueryService:
         return combined_context
 
     def _fetch_space_weather(self, hours: int):
+        # f-string内でのデータセット参照が自動的に self.dataset (環境変数値) になる
         query = f"""
             SELECT timestamp, metric, value
             FROM `{self.project_id}.{self.dataset}.{self.table_space}`
@@ -51,7 +56,6 @@ class BigQueryService:
         return "\n".join(lines) if lines else "No space weather data."
 
     def _fetch_earthquakes(self, hours: int):
-        # マグニチュードが大きい順、または最新順に取得
         query = f"""
             SELECT timestamp, magnitude, place, depth
             FROM `{self.project_id}.{self.dataset}.{self.table_earthquake}`
@@ -63,7 +67,6 @@ class BigQueryService:
         return "\n".join(lines) if lines else "No significant earthquakes."
 
     def _fetch_economy(self):
-        # 経済指標の最新値を取得
         query = f"""
             SELECT country_iso3, indicator_type, value, date
             FROM `{self.project_id}.{self.dataset}.{self.table_economy}`
@@ -72,5 +75,5 @@ class BigQueryService:
             LIMIT 10
         """
         results = self.client.query(query).result()
-        lines = [f"- {r.country_iso3} {r.indicator_type}: {r.value} (Date: {r.date})" for r in results]
-        return "\n".join(lines) if lines else "No recent economic indicators."
+        lines = [f"- {r.date}: {r.country_iso3} {r.indicator_type} = {r.value}" for r in results]
+        return "\n".join(lines) if lines else "No recent economic data."
