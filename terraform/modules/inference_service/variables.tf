@@ -26,3 +26,9 @@ variable "bq_dataset" {
   # デフォルト値を staging にしておく
   default     = "celestial_biome_data_staging"
 }
+
+variable "domain_name" {
+  description = "Custom domain name for the Cloud Run service"
+  type        = string
+  default     = "" # 指定しない場合はマッピングを作成しない
+}
